@@ -1,0 +1,82 @@
+﻿
+> ai-student-chatbot@0.1.0 lint
+> eslint
+
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\app\api\transcribe\route.ts
+  33:14  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  36:36  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  92:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\app\chat\page.tsx
+  44:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\app\page.tsx
+  8:3  warning  'HiOutlineMicrophone' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\app\profile\page.tsx
+  43:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\app\profile\page.tsx:43:7
+  41 |   useEffect(() => {
+  42 |     if (profile) {
+> 43 |       setFullName(profile.full_name || '');
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |       setEmail(profile.email || '');
+  45 |       setEducationLevel(profile.education_level || 'degree');
+  46 |       setPreferredLanguage(profile.preferred_language || 'english');  react-hooks/set-state-in-effect
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\components\ChatInput.tsx
+  101:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\components\Navbar.tsx
+  28:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\components\Navbar.tsx:28:7
+  26 |     const stored = localStorage.getItem('theme');
+  27 |     if (stored === 'dark') {
+> 28 |       setTheme('dark');
+     |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  29 |       document.documentElement.setAttribute('data-bs-theme', 'dark');
+  30 |       document.documentElement.setAttribute('data-theme', 'dark');
+  31 |     }  react-hooks/set-state-in-effect
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\contexts\AuthContext.tsx
+  39:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\contexts\AuthContext.tsx:39:9
+  37 |       try {
+  38 |         const parsed = JSON.parse(stored);
+> 39 |         setUser(parsed.user);
+     |         ^^^^^^^ Avoid calling setState() directly within an effect
+  40 |         setProfile(parsed.profile);
+  41 |       } catch {
+  42 |         localStorage.removeItem('edubot_user');  react-hooks/set-state-in-effect
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\services\gemini.ts
+  232:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\ASHWITH REDDY\OneDrive\Desktop\AI CHATBOT\ai-student-chatbot\services\youtube.ts
+  36:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 12 problems (10 errors, 2 warnings)
+
