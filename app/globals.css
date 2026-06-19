@@ -939,6 +939,82 @@ body {
   .chat-container { margin-left: 260px; }
 }
 
+/* ─── Auth Pages (Login / Signup) ─── */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, var(--brand-50) 0%, var(--neutral-50) 60%, var(--neutral-100) 100%);
+}
+
+.auth-card {
+  width: 100%;
+  background: var(--neutral-0);
+  border: 1px solid var(--neutral-150);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl), 0 0 0 1px rgba(124,58,237,0.04);
+}
+
+/* ─── Google OAuth Button ─── */
+.btn-google-oauth {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--neutral-0);
+  border: 1.5px solid var(--neutral-200);
+  border-radius: var(--radius-lg);
+  color: var(--neutral-700);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+}
+
+.btn-google-oauth:hover:not(:disabled) {
+  background: var(--neutral-50);
+  border-color: var(--neutral-300);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+  color: var(--neutral-900);
+}
+
+.btn-google-oauth:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-google-oauth:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ─── Auth OR Divider ─── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--neutral-400);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--neutral-150);
+}
+
 /* ─── Print ─── */
 @media print {
   .sidebar, .navbar-custom, .chat-input-area { display: none !important; }
