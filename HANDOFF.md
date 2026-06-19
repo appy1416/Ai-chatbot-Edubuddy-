@@ -2,7 +2,23 @@
 
 ## Last Updated: 2026-06-19
 
-## Current State: ✅ Google OAuth Integration Complete
+## Current State: ✅ Google OAuth Integration + Redirect Fix Complete
+
+---
+
+## Session 2: Fix Google Login Redirect (2026-06-19)
+
+### Root Cause
+The MVP mock `signInWithGoogle()` in `AuthContext` set `user` in React state and returned `{ error: null }`, but the login page handler had a comment saying *"Supabase triggers redirect automatically; no router.push needed"* — which is only true for the **real Supabase OAuth flow**. In the **mock path**, no redirect happened.
+
+### What was fixed
+
+| File | Fix |
+|------|-----|
+| `contexts/AuthContext.tsx` | Added `supabase.auth.onAuthStateChange` listener (detects real OAuth sessions after callback); refactored to `persistSession`/`clearSession` helpers; fixed mock Google sign-in to generate unique emails |
+| `app/login/page.tsx` | Added `useEffect` guard (redirect away if already authed); added explicit `router.push('/dashboard')` after Google success; added loading spinner while session initialises |
+| `app/signup/page.tsx` | Same fixes as login page |
+| `components/LayoutWrapper.tsx` | Added belt-and-suspenders `useEffect` guard that redirects authenticated users away from `/login` or `/signup` |
 
 ---
 

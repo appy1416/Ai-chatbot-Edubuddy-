@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
@@ -9,30 +9,41 @@ import Navbar from './Navbar';
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Authenticated routes that should show the sidebar
   const isLanding = pathname === '/';
   const isAuthPage = pathname === '/login' || pathname === '/signup';
   const showSidebar = !!(user && !isLanding && !isAuthPage);
 
-  // Debug log to ensure layout state is correct
+  // ── Belt-and-suspenders guard: redirect authenticated users away from auth pages ──
+  // The login/signup pages each have their own guard, but this catches any edge cases.
   useEffect(() => {
-    console.log('Layout State:', { showSidebar, user: !!user, pathname });
-  }, [showSidebar, user, pathname]);
+    if (!loading && user && isAuthPage) {
+      console.log('[LayoutWrapper] Authenticated user on auth page — redirecting to /dashboard');
+      router.replace('/dashboard');
+    }
+  }, [user, loading, isAuthPage, router]);
+
+  // Debug log
+  useEffect(() => {
+    if (!loading) {
+      console.log('[LayoutWrapper] State:', { showSidebar, user: !!user, pathname, loading });
+    }
+  }, [showSidebar, user, pathname, loading]);
 
   return (
     <div className="app-shell">
       {showSidebar && (
-        <Sidebar 
-          isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)} 
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
         />
       )}
-      
+
       <div className="main-container">
         {!isAuthPage && <Navbar onMenuClick={() => setSidebarOpen(true)} showSidebarToggle={showSidebar} />}
-        
+
         <main className={showSidebar ? 'content-area' : ''}>
           {children}
         </main>

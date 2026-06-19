@@ -7,58 +7,103 @@ import { useAuth } from '@/contexts/AuthContext';
 import { HiOutlineAcademicCap, HiOutlineEnvelope, HiOutlineLockClosed } from 'react-icons/hi2';
 
 export default function LoginPage() {
-  const { signIn, signInWithGoogle } = useAuth();
+  const { user, loading, signIn, signInWithGoogle } = useAuth();
   const router = useRouter();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Surface OAuth errors passed back via query param (e.g. from /auth/callback)
+  // ── Guard: if the user is already authenticated, redirect away ──────────
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('[Login] User already authenticated — redirecting to /dashboard');
+      router.replace('/dashboard');
+    }
+  }, [user, loading, router]);
+
+  // ── Surface OAuth errors passed back via query param ────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauthError = params.get('error');
-    if (oauthError) setError(decodeURIComponent(oauthError));
+    if (oauthError) {
+      console.error('[Login] OAuth error param:', oauthError);
+      setError(decodeURIComponent(oauthError));
+    }
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (!email) { setError('Please enter your email address'); return; }
-    
-    setLoading(true);
-    const result = await signIn(email, password); 
-    setLoading(false);
-    
-    if (result.error) {
-      setError(result.error);
-    } else {
-      router.push('/dashboard');
+
+    setFormLoading(true);
+    try {
+      const result = await signIn(email, password);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        console.log('[Login] Email sign-in successful — redirecting to /dashboard');
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      console.error('[Login] Unexpected error:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setFormLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
     setGoogleLoading(true);
-    const result = await signInWithGoogle();
-    setGoogleLoading(false);
-    if (result.error) {
-      setError(result.error);
+    try {
+      const result = await signInWithGoogle();
+
+      if (result.error) {
+        console.error('[Login] Google sign-in error:', result.error);
+        setError(result.error);
+        setGoogleLoading(false);
+        return;
+      }
+
+      // ── Supabase real OAuth: browser will be redirected by Supabase to Google.
+      // ── MVP mock: signInWithGoogle() already set the user in state.
+      //    We redirect here; the user guard above also fires as a safety net.
+      console.log('[Login] Google sign-in returned successfully — redirecting to /dashboard');
+      router.push('/dashboard');
+    } catch (err) {
+      console.error('[Login] handleGoogleSignIn unexpected error:', err);
+      setError('Failed to connect to Google. Please try again.');
+      setGoogleLoading(false);
     }
-    // On success: Supabase triggers a redirect automatically; no router.push needed
   };
+
+  // Show a minimal spinner while checking persisted session to avoid flash
+  if (loading) {
+    return (
+      <div className="auth-container">
+        <div className="d-flex flex-column align-items-center gap-3">
+          <div className="spinner-border text-primary" role="status" style={{ width: '2.5rem', height: '2.5rem' }}>
+            <span className="visually-hidden">Loading…</span>
+          </div>
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>Checking session…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="auth-container">
       <div className="auth-card" style={{ maxWidth: '440px', padding: '3rem 2.5rem' }}>
-        
+
         <div className="text-center mb-5">
-          <div 
-            className="d-inline-flex p-3 rounded-4 mb-3" 
-            style={{ 
-              background: 'var(--brand-50)', 
+          <div
+            className="d-inline-flex p-3 rounded-4 mb-3"
+            style={{
+              background: 'var(--brand-50)',
               color: 'var(--brand-600)',
               boxShadow: '0 8px 16px -4px rgba(124, 58, 237, 0.1)'
             }}
@@ -70,8 +115,12 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="alert alert-danger py-2 px-3 mb-4 rounded-3 d-flex align-items-center gap-2" style={{ fontSize: '0.85rem' }}>
-            <span className="fw-bold">!</span> {error}
+          <div
+            className="alert alert-danger py-2 px-3 mb-4 rounded-3 d-flex align-items-center gap-2"
+            style={{ fontSize: '0.85rem' }}
+            role="alert"
+          >
+            <span className="fw-bold" aria-hidden="true">!</span> {error}
           </div>
         )}
 
@@ -81,7 +130,7 @@ export default function LoginPage() {
           type="button"
           className="btn-google-oauth w-100 mb-4"
           onClick={handleGoogleSignIn}
-          disabled={googleLoading || loading}
+          disabled={googleLoading || formLoading}
         >
           {googleLoading ? (
             <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
@@ -96,11 +145,11 @@ export default function LoginPage() {
           <span>or sign in with email</span>
         </div>
 
-        <form onSubmit={handleLogin} className="d-flex flex-column gap-4">
+        <form onSubmit={handleLogin} className="d-flex flex-column gap-4" noValidate>
           <div>
-            <label className="form-label-custom">Email Address</label>
+            <label htmlFor="input-login-email" className="form-label-custom">Email Address</label>
             <div className="position-relative">
-              <span className="position-absolute top-50 translate-middle-y ms-3 text-muted">
+              <span className="position-absolute top-50 translate-middle-y ms-3 text-muted" aria-hidden="true">
                 <HiOutlineEnvelope size={20} />
               </span>
               <input
@@ -110,15 +159,16 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
+                autoComplete="email"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="form-label-custom">Password</label>
+            <label htmlFor="input-login-password" className="form-label-custom">Password</label>
             <div className="position-relative">
-              <span className="position-absolute top-50 translate-middle-y ms-3 text-muted">
+              <span className="position-absolute top-50 translate-middle-y ms-3 text-muted" aria-hidden="true">
                 <HiOutlineLockClosed size={20} />
               </span>
               <input
@@ -128,18 +178,19 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 required
               />
             </div>
           </div>
-          
+
           <button
             id="btn-email-signin"
             type="submit"
             className="btn btn-premium-primary w-100 py-3 mt-2"
-            disabled={loading}
+            disabled={formLoading}
           >
-            {loading ? 'Authenticating...' : 'Sign In Now'}
+            {formLoading ? 'Authenticating…' : 'Sign In Now'}
           </button>
         </form>
 
@@ -149,7 +200,7 @@ export default function LoginPage() {
             <Link href="/signup" className="text-brand-600 fw-bold text-decoration-none">Create an account</Link>
           </p>
         </div>
-        
+
       </div>
     </div>
   );
